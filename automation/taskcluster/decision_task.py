@@ -14,6 +14,7 @@ def main(task_for, mock=False):
         android_libs_task = android_libs()
         desktop_linux_libs_task = desktop_linux_libs()
         desktop_macos_libs_task = desktop_macos_libs()
+        desktop_win32_x86_64_libs_task = desktop_win32_x86_64_libs()
 
         android_arm32(android_libs_task, desktop_linux_libs_task)
 
@@ -22,6 +23,7 @@ def main(task_for, mock=False):
         android_libs_task = android_libs()
         desktop_linux_libs_task = desktop_linux_libs()
         desktop_macos_libs_task = desktop_macos_libs()
+        desktop_win32_x86_64_libs_task = desktop_win32_x86_64_libs()
 
         if CONFIG.git_ref.startswith('refs/tags/'):
             # A release.
@@ -89,7 +91,7 @@ def desktop_macos_libs():
         .with_script("""
             pushd libs
             ./cross-compile-macos-on-linux-desktop-libs.sh
-            ./build-all.sh osx-cross
+            ./build-all.sh darwin
             popd
             tar -czf /build/repo/target.tar.gz libs/desktop
         """)
@@ -99,6 +101,25 @@ def desktop_macos_libs():
             "/build/repo/target.tar.gz",
         )
         .find_or_create("build.libs.desktop.macos." + CONFIG.git_sha_for_directory("libs"))
+    )
+
+def desktop_win32_x86_64_libs():
+    return (
+        linux_build_task("Desktop libs (win32-x86-64): build")
+        .with_script("""
+            apt-get install --quiet --yes --no-install-recommends mingw-w64
+            pushd libs
+            ./build-all.sh win32-x86-64
+            popd
+            tar -czf /build/repo/target.tar.gz libs/desktop
+            curl --silent --show-error --fail --location --retry 5 --retry-delay 10 https://github.com/mozilla/sccache/releases/download/0.2.7/sccache-0.2.7-x86_64-unknown-linux-musl.tar.gz | tar -xz --strip-components=1 -C /usr/local/bin/ sccache-0.2.7-x86_64-unknown-linux-musl/sccache
+            rustup target add x86_64-pc-windows-gnu
+            env RUSTFLAGS='-C linker=x86_64-w64-mingw32-gcc' AR=x86_64-w64-mingw32-ar CC=x86_64-w64-mingw32-gcc OPENSSL_STATIC=1 OPENSSL_DIR=/build/repo/libs/desktop/win32-x86-64/openssl SQLCIPHER_LIB_DIR=/build/repo/libs/desktop/win32-x86-64/sqlcipher/lib SQLCIPHER_INCLUDE_DIR=/build/repo/libs/desktop/win32-x86-64/sqlcipher/include cargo build --release --target=x86_64-pc-windows-gnu --verbose
+        """)
+        .with_artifacts(
+            "/build/repo/target.tar.gz",
+        )
+        .find_or_create("build.libs.desktop.win32-x86-64." + CONFIG.git_sha_for_directory("libs"))
     )
 
 def android_arm32(android_libs_task, desktop_libs_task):
