@@ -35,19 +35,21 @@ pub struct Config {
     jwks_uri: String,
     token_endpoint: String,
     userinfo_endpoint: String,
+    pub client_id: String,
+    pub redirect_uri: String,
 }
 
 impl Config {
-    pub fn release() -> Result<Self> {
-        Self::import_from("https://accounts.firefox.com")
+    pub fn release(client_id: &str, redirect_uri: &str) -> Result<Self> {
+        Self::import_from("https://accounts.firefox.com", client_id, redirect_uri)
     }
 
-    pub fn stable_dev() -> Result<Self> {
-        Self::import_from("https://stable.dev.lcip.org")
+    pub fn stable_dev(client_id: &str, redirect_uri: &str) -> Result<Self> {
+        Self::import_from("https://stable.dev.lcip.org", client_id, redirect_uri)
     }
 
-    pub fn stage_dev() -> Result<Self> {
-        Self::import_from("https://accounts.stage.mozaws.net")
+    pub fn stage_dev(client_id: &str, redirect_uri: &str) -> Result<Self> {
+        Self::import_from("https://accounts.stage.mozaws.net", client_id, redirect_uri)
     }
 
     pub(crate) fn new(
@@ -60,7 +62,9 @@ impl Config {
         issuer: String,
         jwks_uri: String,
         token_endpoint: String,
-        userinfo_endpoint: String
+        userinfo_endpoint: String,
+        client_id: String,
+        redirect_uri: String,
     ) -> Self {
         Config {
             content_url,
@@ -72,11 +76,13 @@ impl Config {
             issuer,
             jwks_uri,
             token_endpoint,
-            userinfo_endpoint
+            userinfo_endpoint,
+            client_id,
+            redirect_uri,
         }
     }
 
-    pub fn import_from(content_url: &str) -> Result<Self> {
+    pub fn import_from(content_url: &str, client_id: &str, redirect_uri: &str) -> Result<Self> {
         let config_url = Url::parse(content_url)?.join(".well-known/fxa-client-configuration")?;
         let resp: ClientConfigurationResponse = reqwest::get(config_url)?.json()?;
 
@@ -94,6 +100,8 @@ impl Config {
             jwks_uri: openid_resp.jwks_uri,
             token_endpoint: openid_resp.token_endpoint,
             userinfo_endpoint: openid_resp.userinfo_endpoint,
+            client_id: client_id.to_string(),
+            redirect_uri: redirect_uri.to_string(),
         })
     }
 
@@ -173,6 +181,8 @@ mod tests {
             jwks_uri: "https://oauth-stable.dev.lcip.org/v1/jwks".to_string(),
             token_endpoint: "https://oauth-stable.dev.lcip.org/v1/token".to_string(),
             userinfo_endpoint: "https://stable.dev.lcip.org/profile/v1/profile".to_string(),
+            client_id: "263ceaa5546dce83".to_string(),
+            redirect_uri: "https://127.0.0.1:8080".to_string(),
         };
         assert_eq!(
             config.auth_url_path("v1/account/keys").unwrap().to_string(),

@@ -21,9 +21,9 @@ class Config internal constructor(rawPointer: RawConfig) : RustObject<RawConfig>
          *
          * This performs network requests, and should not be used on the main thread.
          */
-        fun release(): Config {
+        fun release(client_id: String, redirect_uri: String): Config {
             return Config(unlockedRustCall { e ->
-                FxaClient.INSTANCE.fxa_get_release_config(e)
+                FxaClient.INSTANCE.fxa_get_release_config(client_id, redirect_uri, e)
             })
         }
 
@@ -34,9 +34,9 @@ class Config internal constructor(rawPointer: RawConfig) : RustObject<RawConfig>
          *
          * @param content_base Hostname of the FxA auth service provider
          */
-        fun custom(content_base: String): Config {
+        fun custom(content_base: String, client_id: String, redirect_uri: String,): Config {
             return Config(unlockedRustCall { e ->
-                FxaClient.INSTANCE.fxa_get_custom_config(content_base, e)
+                FxaClient.INSTANCE.fxa_get_custom_config(content_base, client_id, redirect_uri, e)
             })
         }
     }

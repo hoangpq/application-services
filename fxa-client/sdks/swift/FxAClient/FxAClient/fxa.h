@@ -56,9 +56,11 @@ typedef struct ProfileC {
 typedef struct FirefoxAccount FirefoxAccount;
 typedef struct Config Config;
 
-Config *_Nullable fxa_get_release_config(FxAErrorC *_Nonnull out);
+Config *_Nullable fxa_get_release_config(const char *_Nonnull client_id, const char *_Nonnull redirect_uri, FxAErrorC *_Nonnull out);
 
 Config *_Nullable fxa_get_custom_config(const char *_Nonnull content_base,
+                                        const char *_Nonnull client_id,
+                                        const char *_Nonnull redirect_uri,
                                         FxAErrorC *_Nonnull out);
 
 char *_Nonnull fxa_begin_oauth_flow(FirefoxAccount *_Nonnull fxa,
@@ -89,8 +91,6 @@ void fxa_unregister_persist_callback(FirefoxAccount *_Nonnull fxa,
                                      FxAErrorC *_Nonnull out);
 
 FirefoxAccount *_Nullable fxa_new(Config *_Nonnull config,
-                                  const char *_Nonnull client_id,
-                                  const char *_Nonnull redirect_uri,
                                   FxAErrorC *_Nonnull out);
 
 ProfileC *_Nullable fxa_profile(FirefoxAccount *_Nonnull fxa,
@@ -98,8 +98,6 @@ ProfileC *_Nullable fxa_profile(FirefoxAccount *_Nonnull fxa,
                                 FxAErrorC *_Nonnull out);
 
 FirefoxAccount *_Nullable fxa_from_credentials(Config *_Nonnull config,
-                                               const char *_Nonnull client_id,
-                                               const char *_Nonnull redirect_uri,
                                                const char *_Nonnull json,
                                                FxAErrorC *_Nonnull out);
 
