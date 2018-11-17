@@ -116,7 +116,7 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     RUST_VERSION=1.30.1
 
 RUN set -eux; \
-    rustArch='x86_64-unknown-linux-gnu'; rustupSha256='ab125d9b12bf0f3f7e7ad98e826035fa1ae3dbe6ba8b78be4c82f9cde00bc59f'; \
+    rustArch='x86_64-unknown-linux-gnu'; rustupSha256='0077ff9c19f722e2be202698c037413099e1188c0c233c12a2297bf18e9ff6e7'; \
     url="https://static.rust-lang.org/rustup/archive/1.14.0/${rustArch}/rustup-init"; \
     wget "$url"; \
     echo "${rustupSha256} *rustup-init" | sha256sum -c -; \
