@@ -45,6 +45,7 @@ RUN apt-get update -qq \
                           curl \
                           python \
                           python-pip \
+                          python-setuptools \
                           locales \
                           unzip \
     && apt-get clean
